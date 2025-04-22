@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Note{% endblock %}
+
+{% block content %}
+    <div class="add-note">
+        <form action="{{ url_for('update_note', id=note.id) }}" method="POST">
+            <input type="text" name="title" placeholder="Title (optional)" value="{{ note.title or '' }}">
+            <textarea name="content" placeholder="Take a note..." required>{{ note.content }}</textarea>
+            <div class="form-actions">
+                <div class="color-picker">
+                    <div class="color-option note-color-default {% if note.color == 'default' %}selected{% endif %}">
+                        <input type="radio" name="color" value="default" {% if note.color == 'default' %}checked{% endif %}>
+                    </div>
+                    <div class="color-option note-color-red {% if note.color == 'red' %}selected{% endif %}">
+                        <input type="radio" name="color" value="red" {% if note.color == 'red' %}checked{% endif %}>
+                    </div>
+                    <div class="color-option note-color-orange {% if note.color == 'orange' %}selected{% endif %}">
+                        <input type="radio" name="color" value="orange" {% if note.color == 'orange' %}checked{% endif %}>
+                    </div>
+                    <div class="color-option note-color-yellow {% if note.color == 'yellow' %}selected{% endif %}">
+                        <input type="radio" name="color" value="yellow" {% if note.color == 'yellow' %}checked{% endif %}>
+                    </div>
+                    <div class="color-option note-color-green {% if note.color == 'green' %}selected{% endif %}">
+                        <input type="radio" name="color" value="green" {% if note.color == 'green' %}checked{% endif %}>
+                    </div>
+                    <div class="color-option note-color-teal {% if note.color == 'teal' %}selected{% endif %}">
+                        <input type="radio" name="color" value="teal" {% if note.color == 'teal' %}checked{% endif %}>
+                    </div>
+                    <div class="color-option note-color-blue {% if note.color == 'blue' %}selected{% endif %}">
+                        <input type="radio" name="color" value="blue" {% if note.color == 'blue' %}checked{% endif %}>
+                    </div>
+                    <div class="color-option note-color-purple {% if note.color == 'purple' %}selected{% endif %}">
+                        <input type="radio" name="color" value="purple" {% if note.color == 'purple' %}checked{% endif %}>
+                    </div>
+                    <div class="color-option note-color-pink {% if note.color == 'pink' %}selected{% endif %}">
+                        <input type="radio" name="color" value="pink" {% if note.color == 'pink' %}checked{% endif %}>
+                    </div>
+                    <div class="color-option note-color-brown {% if note.color == 'brown' %}selected{% endif %}">
+                        <input type="radio" name="color" value="brown" {% if note.color == 'brown' %}checked{% endif %}>
+                    </div>
+                    <div class="color-option note-color-gray {% if note.color == 'gray' %}selected{% endif %}">
+                        <input type="radio" name="color" value="gray" {% if note.color == 'gray' %}checked{% endif %}>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Handle color picker selection
+        document.querySelectorAll('.color-option input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.querySelectorAll('.color-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                this.parentElement.classList.add('selected');
+            });
+        });
+    </script>
+{% endblock %} 

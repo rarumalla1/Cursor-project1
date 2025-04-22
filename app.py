@@ -48,6 +48,20 @@ def archived_notes():
     notes = Note.query.filter_by(is_archived=True).order_by(Note.created_at.desc()).all()
     return render_template('archived.html', notes=notes)
 
+@app.route('/edit/<int:id>', methods=['GET'])
+def edit_note(id):
+    note = Note.query.get_or_404(id)
+    return render_template('edit.html', note=note)
+
+@app.route('/update/<int:id>', methods=['POST'])
+def update_note(id):
+    note = Note.query.get_or_404(id)
+    note.title = request.form['title']
+    note.content = request.form['content']
+    note.color = request.form.get('color', note.color)
+    db.session.commit()
+    return redirect(url_for('index'))
+
 @app.route('/static/<path:path>')
 def send_static(path):
     return send_from_directory('static', path)

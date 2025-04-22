@@ -274,4 +274,15 @@ body {
 .note-untitled {
     color: #80868b;
     font-style: italic;
+}
+
+/* Button Group */
+.button-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.button-group .btn {
+    min-width: 100px;
 } 

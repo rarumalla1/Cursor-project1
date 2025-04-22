@@ -63,6 +63,9 @@
                     <button class="btn btn-icon btn-secondary" onclick="toggleColorPicker(this)">
                         <span class="material-icons">palette</span>
                     </button>
+                    <a href="{{ url_for('edit_note', id=note.id) }}" class="btn btn-icon btn-secondary">
+                        <span class="material-icons">edit</span>
+                    </a>
                     <a href="{{ url_for('archive_note', id=note.id) }}" class="btn btn-icon btn-secondary">
                         <span class="material-icons">archive</span>
                     </a>
