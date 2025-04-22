@@ -23,55 +23,128 @@ def index():
 
 @app.route('/add_note', methods=['POST'])
 def add_note():
-    if request.method == 'POST':
-        title = request.form['title']
-        content = request.form['content']
-        color = request.form.get('color', 'default')
-        new_note = Note(title=title, content=content, color=color)
+    try:
+        data = request.get_json()
+        title = data.get('title', '').strip()
+        content = data.get('content', '').strip()
+        color = data.get('color', 'default')
+
+        if not content:
+            return jsonify({'success': False, 'error': 'Content is required'})
+
+        new_note = Note(
+            title=title if title else None,
+            content=content,
+            color=color
+        )
         db.session.add(new_note)
         db.session.commit()
-        return redirect(url_for('index'))
 
-@app.route('/update_color/<int:id>', methods=['POST'])
-def update_color(id):
-    note = Note.query.get_or_404(id)
-    color = request.form.get('color', 'default')
-    note.color = color
-    db.session.commit()
-    return jsonify({'success': True})
+        # Return the new note data in the response
+        return jsonify({
+            'success': True,
+            'note': {
+                'id': new_note.id,
+                'title': new_note.title or '',
+                'content': new_note.content,
+                'color': new_note.color,
+                'created_at': new_note.created_at.strftime('%Y-%m-%d %H:%M')
+            }
+        })
 
-@app.route('/delete/<int:id>')
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error saving note: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/update_note_color', methods=['POST'])
+def update_note_color():
+    try:
+        data = request.get_json()
+        note_id = data.get('note_id')
+        color = data.get('color', 'default')
+        
+        note = Note.query.get_or_404(note_id)
+        note.color = color
+        db.session.commit()
+        
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/get_note/<int:id>')
+def get_note(id):
+    try:
+        note = Note.query.get_or_404(id)
+        return jsonify({
+            'success': True,
+            'note': {
+                'id': note.id,
+                'title': note.title,
+                'content': note.content,
+                'color': note.color
+            }
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/delete_note/<int:id>', methods=['POST'])
 def delete_note(id):
-    note = Note.query.get_or_404(id)
-    note.is_deleted = datetime.utcnow()
-    db.session.commit()
-    return redirect(url_for('index'))
+    try:
+        note = Note.query.get_or_404(id)
+        note.is_deleted = datetime.utcnow()
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)})
 
-@app.route('/archive/<int:id>')
+@app.route('/archive_note/<int:id>', methods=['POST'])
 def archive_note(id):
-    note = Note.query.get_or_404(id)
-    note.is_archived = True
-    db.session.commit()
-    return redirect(url_for('index'))
+    try:
+        note = Note.query.get_or_404(id)
+        note.is_archived = True
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/edit_note/<int:id>', methods=['POST'])
+def edit_note(id):
+    try:
+        note = Note.query.get_or_404(id)
+        data = request.get_json()
+        
+        note.title = data.get('title', '').strip()
+        note.content = data.get('content', '').strip()
+        note.color = data.get('color', 'default')
+        
+        if not note.content:
+            return jsonify({'success': False, 'error': 'Content is required'})
+        
+        db.session.commit()
+        
+        # Return the updated note data
+        return jsonify({
+            'success': True,
+            'note': {
+                'id': note.id,
+                'title': note.title or '',
+                'content': note.content,
+                'color': note.color,
+                'created_at': note.created_at.strftime('%Y-%m-%d %H:%M')
+            }
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/archived')
 def archived_notes():
     notes = Note.query.filter_by(is_archived=True).order_by(Note.created_at.desc()).all()
     return render_template('archived.html', notes=notes)
-
-@app.route('/edit/<int:id>', methods=['GET'])
-def edit_note(id):
-    note = Note.query.get_or_404(id)
-    return render_template('edit.html', note=note)
-
-@app.route('/update/<int:id>', methods=['POST'])
-def update_note(id):
-    note = Note.query.get_or_404(id)
-    note.title = request.form['title']
-    note.content = request.form['content']
-    note.color = request.form.get('color', note.color)
-    db.session.commit()
-    return redirect(url_for('index'))
 
 @app.route('/trash')
 def trash():

@@ -3,162 +3,81 @@
 {% block title %}Notes{% endblock %}
 
 {% block content %}
-    <div class="add-note">
-        <form action="{{ url_for('add_note') }}" method="POST">
-            <input type="text" name="title" placeholder="Title (optional)">
-            <textarea name="content" placeholder="Take a note..." required></textarea>
-            <div class="form-actions">
-                <div class="color-picker">
-                    <div class="color-option note-color-default selected">
-                        <input type="radio" name="color" value="default" checked>
-                    </div>
-                    <div class="color-option note-color-red">
-                        <input type="radio" name="color" value="red">
-                    </div>
-                    <div class="color-option note-color-orange">
-                        <input type="radio" name="color" value="orange">
-                    </div>
-                    <div class="color-option note-color-yellow">
-                        <input type="radio" name="color" value="yellow">
-                    </div>
-                    <div class="color-option note-color-green">
-                        <input type="radio" name="color" value="green">
-                    </div>
-                    <div class="color-option note-color-teal">
-                        <input type="radio" name="color" value="teal">
-                    </div>
-                    <div class="color-option note-color-blue">
-                        <input type="radio" name="color" value="blue">
-                    </div>
-                    <div class="color-option note-color-purple">
-                        <input type="radio" name="color" value="purple">
-                    </div>
-                    <div class="color-option note-color-pink">
-                        <input type="radio" name="color" value="pink">
-                    </div>
-                    <div class="color-option note-color-brown">
-                        <input type="radio" name="color" value="brown">
-                    </div>
-                    <div class="color-option note-color-gray">
-                        <input type="radio" name="color" value="gray">
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary">Add Note</button>
-            </div>
-        </form>
+<div class="container mt-4">
+    <!-- Search input -->
+    <div class="search-container mb-4">
+        <input type="text" id="searchInput" class="form-control" placeholder="Search notes..." oninput="searchNotes()">
     </div>
 
+    <!-- Notes grid -->
     <div class="notes-grid">
         {% for note in notes %}
-        <div class="note-card note-color-{{ note.color }}" data-note-id="{{ note.id }}">
-            {% if note.title %}
-                <h2 class="note-title">{{ note.title }}</h2>
-            {% else %}
-                <h2 class="note-title note-untitled">Untitled</h2>
-            {% endif %}
-            <p class="note-content">{{ note.content }}</p>
-            <div class="note-footer">
-                <span class="note-date">{{ note.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+        <div class="note-card note-color-{{ note.color }}" data-note-id="{{ note.id }}" data-color="{{ note.color }}">
+            <div class="note-header">
+                <h5 class="note-title">{{ note.title }}</h5>
                 <div class="note-actions">
-                    <button class="btn btn-icon" onclick="showColorPicker({{ note.id }})" title="Change color">
-                        <span class="material-icons">palette</span>
+                    <button class="btn btn-link color-picker-btn" onclick="showColorPicker(this)" data-note-id="{{ note.id }}" title="Change color">
+                        <i class="fa-solid fa-palette"></i>
                     </button>
-                    <a href="{{ url_for('edit_note', id=note.id) }}" class="btn btn-icon" title="Edit">
-                        <span class="material-icons">edit</span>
-                    </a>
-                    <a href="{{ url_for('archive_note', id=note.id) }}" class="btn btn-icon" title="Archive">
-                        <span class="material-icons">archive</span>
-                    </a>
-                    <a href="{{ url_for('delete_note', id=note.id) }}" class="btn btn-icon" title="Delete">
-                        <span class="material-icons">delete</span>
-                    </a>
+                    <button class="btn btn-link" onclick="editNote({{ note.id }})" title="Edit">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button class="btn btn-link" onclick="archiveNote({{ note.id }})" title="Archive">
+                        <i class="fa-solid fa-box-archive"></i>
+                    </button>
+                    <button class="btn btn-link" onclick="deleteNote({{ note.id }})" title="Delete">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
                 </div>
+            </div>
+            <div class="note-content">{{ note.content }}</div>
+            <div class="note-footer">
+                <small class="text-muted">Created: {{ note.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
             </div>
         </div>
         {% endfor %}
     </div>
 
-    <!-- Color Picker Modal -->
-    <div id="colorPickerModal" class="modal">
+    <!-- Empty state message -->
+    <div class="empty-state" {% if notes %}style="display: none;"{% endif %}>
+        <i class="fa-solid fa-note-sticky fa-3x mb-3"></i>
+        <p id="emptyStateMessage">No notes yet. Create one!</p>
+    </div>
+
+    <!-- Add Note Button -->
+    <button class="floating-action-btn" onclick="showAddNoteModal()">
+        <i class="fa-solid fa-plus"></i>
+    </button>
+
+    <!-- Add Note Modal -->
+    <div class="modal" id="addNoteModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Select Color</h3>
-                <button class="close-button" onclick="hideColorPicker()">
-                    <span class="material-icons">close</span>
-                </button>
+                <h5>Add Note</h5>
+                <button type="button" class="close" onclick="hideAddNoteModal()">&times;</button>
             </div>
-            <div class="color-grid">
-                <button class="color-option note-color-default" onclick="updateNoteColor('default')"></button>
-                <button class="color-option note-color-red" onclick="updateNoteColor('red')"></button>
-                <button class="color-option note-color-orange" onclick="updateNoteColor('orange')"></button>
-                <button class="color-option note-color-yellow" onclick="updateNoteColor('yellow')"></button>
-                <button class="color-option note-color-green" onclick="updateNoteColor('green')"></button>
-                <button class="color-option note-color-teal" onclick="updateNoteColor('teal')"></button>
-                <button class="color-option note-color-blue" onclick="updateNoteColor('blue')"></button>
-                <button class="color-option note-color-purple" onclick="updateNoteColor('purple')"></button>
-                <button class="color-option note-color-pink" onclick="updateNoteColor('pink')"></button>
-                <button class="color-option note-color-brown" onclick="updateNoteColor('brown')"></button>
-                <button class="color-option note-color-gray" onclick="updateNoteColor('gray')"></button>
+            <div class="modal-body">
+                <form id="addNoteForm">
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="title" name="title" placeholder="Title">
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" id="content" name="content" placeholder="Take a note..."></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="color-picker-container">
+                            <button type="button" class="btn btn-icon color-picker-btn" onclick="showColorPicker(this)">
+                                <i class="material-icons">palette</i>
+                            </button>
+                        </div>
+                        <div class="button-group">
+                            <button type="button" class="btn btn-secondary" onclick="hideAddNoteModal()">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-
-    <script>
-        // Handle color picker selection in the add note form
-        document.querySelectorAll('.add-note .color-option input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                document.querySelectorAll('.add-note .color-option').forEach(option => {
-                    option.classList.remove('selected');
-                });
-                this.parentElement.classList.add('selected');
-            });
-        });
-
-        // Color picker modal functionality
-        let currentNoteId = null;
-        const modal = document.getElementById('colorPickerModal');
-
-        function showColorPicker(noteId) {
-            currentNoteId = noteId;
-            modal.style.display = 'block';
-        }
-
-        function hideColorPicker() {
-            modal.style.display = 'none';
-            currentNoteId = null;
-        }
-
-        function updateNoteColor(color) {
-            if (!currentNoteId) return;
-
-            fetch(`/update_color/${currentNoteId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `color=${color}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const noteCard = document.querySelector(`.note-card[data-note-id="${currentNoteId}"]`);
-                    if (noteCard) {
-                        // Remove all color classes
-                        noteCard.className = noteCard.className.replace(/\bnote-color-\w+\b/g, '');
-                        // Add new color class
-                        noteCard.classList.add('note-card', `note-color-${color}`);
-                    }
-                    hideColorPicker();
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        }
-
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            if (event.target === modal) {
-                hideColorPicker();
-            }
-        }
-    </script>
+</div>
 {% endblock %} 
