@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Archived Notes{% endblock %}
+
+{% block content %}
+    <div class="notes-grid">
+        {% for note in notes %}
+        <div class="note-card note-color-{{ note.color }}">
+            <div class="archive-badge">Archived</div>
+            {% if note.title %}
+                <h2 class="note-title">{{ note.title }}</h2>
+            {% else %}
+                <h2 class="note-title note-untitled">Untitled</h2>
+            {% endif %}
+            <p class="note-content">{{ note.content }}</p>
+            <div class="note-footer">
+                <span>{{ note.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                <div class="note-actions">
+                    <a href="{{ url_for('delete_note', id=note.id) }}" class="btn btn-icon btn-secondary">
+                        <span class="material-icons">delete</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if not notes %}
+    <div class="empty-state">
+        <p>No archived notes</p>
+    </div>
+    {% endif %}
+{% endblock %} 

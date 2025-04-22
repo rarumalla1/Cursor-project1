@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Notes{% endblock %}
+
+{% block content %}
+    <div class="add-note">
+        <form action="{{ url_for('add_note') }}" method="POST">
+            <input type="text" name="title" placeholder="Title (optional)">
+            <textarea name="content" placeholder="Take a note..." required></textarea>
+            <div class="form-actions">
+                <div class="color-picker">
+                    <div class="color-option note-color-default selected">
+                        <input type="radio" name="color" value="default" checked>
+                    </div>
+                    <div class="color-option note-color-red">
+                        <input type="radio" name="color" value="red">
+                    </div>
+                    <div class="color-option note-color-orange">
+                        <input type="radio" name="color" value="orange">
+                    </div>
+                    <div class="color-option note-color-yellow">
+                        <input type="radio" name="color" value="yellow">
+                    </div>
+                    <div class="color-option note-color-green">
+                        <input type="radio" name="color" value="green">
+                    </div>
+                    <div class="color-option note-color-teal">
+                        <input type="radio" name="color" value="teal">
+                    </div>
+                    <div class="color-option note-color-blue">
+                        <input type="radio" name="color" value="blue">
+                    </div>
+                    <div class="color-option note-color-purple">
+                        <input type="radio" name="color" value="purple">
+                    </div>
+                    <div class="color-option note-color-pink">
+                        <input type="radio" name="color" value="pink">
+                    </div>
+                    <div class="color-option note-color-brown">
+                        <input type="radio" name="color" value="brown">
+                    </div>
+                    <div class="color-option note-color-gray">
+                        <input type="radio" name="color" value="gray">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Note</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="notes-grid">
+        {% for note in notes %}
+        <div class="note-card note-color-{{ note.color }}">
+            {% if note.title %}
+                <h2 class="note-title">{{ note.title }}</h2>
+            {% else %}
+                <h2 class="note-title note-untitled">Untitled</h2>
+            {% endif %}
+            <p class="note-content">{{ note.content }}</p>
+            <div class="note-footer">
+                <span>{{ note.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                <div class="note-actions">
+                    <button class="btn btn-icon btn-secondary" onclick="toggleColorPicker(this)">
+                        <span class="material-icons">palette</span>
+                    </button>
+                    <a href="{{ url_for('archive_note', id=note.id) }}" class="btn btn-icon btn-secondary">
+                        <span class="material-icons">archive</span>
+                    </a>
+                    <a href="{{ url_for('delete_note', id=note.id) }}" class="btn btn-icon btn-secondary">
+                        <span class="material-icons">delete</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        // Handle color picker selection in the add note form
+        document.querySelectorAll('.color-option input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.querySelectorAll('.color-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                this.parentElement.classList.add('selected');
+            });
+        });
+
+        // Show/hide color picker for existing notes
+        function toggleColorPicker(button) {
+            // Implementation will be added for changing note colors
+            console.log('Color picker clicked');
+        }
+    </script>
+{% endblock %} 
