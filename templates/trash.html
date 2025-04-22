@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Trash{% endblock %}
+
+{% block content %}
+    <div class="notes-grid">
+        {% for note in notes %}
+        <div class="note-card note-color-{{ note.color }}" data-note-id="{{ note.id }}">
+            {% if note.title %}
+                <h2 class="note-title">{{ note.title }}</h2>
+            {% else %}
+                <h2 class="note-title note-untitled">Untitled</h2>
+            {% endif %}
+            <p class="note-content">{{ note.content }}</p>
+            <div class="note-footer">
+                <div class="note-info">
+                    <span class="deleted-at">Deleted {{ note.is_deleted.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+                <div class="note-actions">
+                    <a href="{{ url_for('restore_note', id=note.id) }}" class="btn btn-icon btn-secondary" title="Restore">
+                        <span class="material-icons">restore</span>
+                    </a>
+                    <a href="{{ url_for('permanent_delete_note', id=note.id) }}" class="btn btn-icon btn-danger" title="Delete permanently" onclick="return confirm('Are you sure you want to permanently delete this note? This action cannot be undone.');">
+                        <span class="material-icons">delete_forever</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if not notes %}
+    <div class="empty-state">
+        <span class="material-icons">delete_outline</span>
+        <p>No items in trash</p>
+    </div>
+    {% endif %}
+
+    {% if notes %}
+    <div class="trash-actions">
+        <button class="btn btn-danger" onclick="if(confirm('Are you sure you want to empty the trash? This action cannot be undone.')) window.location.href='{{ url_for('empty_trash') }}'">
+            Empty Trash
+        </button>
+    </div>
+    {% endif %}
+{% endblock %} 

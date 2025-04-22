@@ -14,6 +14,7 @@ class Note(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     is_archived = db.Column(db.Boolean, default=False)
+    is_deleted = db.Column(db.DateTime, nullable=True)  # When the note was moved to trash
 
     def __init__(self, title=None, content=None, color='default'):
         self.title = title
@@ -32,7 +33,8 @@ class Note(db.Model):
             'color': self.color,
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat(),
-            'is_archived': self.is_archived
+            'is_archived': self.is_archived,
+            'is_deleted': self.is_deleted.isoformat() if self.is_deleted else None
         }
 
     @staticmethod

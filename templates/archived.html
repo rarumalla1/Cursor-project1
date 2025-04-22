@@ -5,7 +5,7 @@
 {% block content %}
     <div class="notes-grid">
         {% for note in notes %}
-        <div class="note-card note-color-{{ note.color }}">
+        <div class="note-card note-color-{{ note.color }}" data-note-id="{{ note.id }}">
             <div class="archive-badge">Archived</div>
             {% if note.title %}
                 <h2 class="note-title">{{ note.title }}</h2>
@@ -14,9 +14,9 @@
             {% endif %}
             <p class="note-content">{{ note.content }}</p>
             <div class="note-footer">
-                <span>{{ note.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                <span class="note-date">{{ note.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
                 <div class="note-actions">
-                    <a href="{{ url_for('delete_note', id=note.id) }}" class="btn btn-icon btn-secondary">
+                    <a href="{{ url_for('delete_note', id=note.id) }}" class="btn btn-icon" title="Delete">
                         <span class="material-icons">delete</span>
                     </a>
                 </div>

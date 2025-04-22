@@ -146,6 +146,9 @@ body {
     padding: 16px;
     transition: box-shadow 0.2s ease-in-out;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 150px;
 }
 
 .note-card:hover {
@@ -159,9 +162,10 @@ body {
 }
 
 .note-content {
+    flex-grow: 1;
+    margin-bottom: 8px;
     font-size: 14px;
     color: #5f6368;
-    margin-bottom: 16px;
     word-wrap: break-word;
 }
 
@@ -169,6 +173,9 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding-top: 12px;
+    margin-top: auto;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
     font-size: 12px;
     color: #80868b;
 }
@@ -176,12 +183,28 @@ body {
 .note-actions {
     display: flex;
     gap: 4px;
-    opacity: 0;
-    transition: opacity 0.2s;
+    align-items: center;
 }
 
-.note-card:hover .note-actions {
-    opacity: 1;
+.note-actions .btn-icon {
+    padding: 4px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    background: transparent;
+    color: #5f6368;
+    transition: background-color 0.2s;
+}
+
+.note-actions .btn-icon:hover {
+    background-color: rgba(95, 99, 104, 0.1);
+}
+
+.note-actions .material-icons {
+    font-size: 18px;
 }
 
 /* Buttons */
@@ -285,4 +308,168 @@ body {
 
 .button-group .btn {
     min-width: 100px;
+}
+
+/* Color Picker Dropdown */
+.color-picker-container {
+    position: relative;
+    display: inline-block;
+}
+
+.note-color-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 8px;
+    z-index: 1000;
+    width: 160px;
+    margin-top: 4px;
+}
+
+.note-color-dropdown.show {
+    display: block;
+}
+
+.note-color-dropdown .color-option {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.note-color-dropdown .color-option:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.note-color-dropdown .color-label {
+    margin-left: 8px;
+    font-size: 14px;
+    color: #5f6368;
+}
+
+/* Ensure color picker button stays above other elements */
+.btn-icon[onclick="toggleColorPicker(this)"] {
+    position: relative;
+    z-index: 1001;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.modal-content {
+    position: relative;
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    width: 300px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #202124;
+    font-size: 18px;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: #5f6368;
+}
+
+.close-button:hover {
+    color: #202124;
+}
+
+/* Color Grid */
+.color-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    padding: 8px;
+}
+
+.color-grid .color-option {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.color-grid .color-option:hover {
+    border-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Add data-note-id attribute style */
+.note-card {
+    position: relative;
+}
+
+/* Trash Styles */
+.deleted-at {
+    color: #5f6368;
+    font-size: 12px;
+}
+
+.note-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.trash-actions {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 100;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+    color: #5f6368;
+}
+
+.empty-state .material-icons {
+    font-size: 48px;
+    margin-bottom: 16px;
 } 

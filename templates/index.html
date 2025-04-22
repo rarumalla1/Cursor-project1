@@ -50,7 +50,7 @@
 
     <div class="notes-grid">
         {% for note in notes %}
-        <div class="note-card note-color-{{ note.color }}">
+        <div class="note-card note-color-{{ note.color }}" data-note-id="{{ note.id }}">
             {% if note.title %}
                 <h2 class="note-title">{{ note.title }}</h2>
             {% else %}
@@ -58,18 +58,18 @@
             {% endif %}
             <p class="note-content">{{ note.content }}</p>
             <div class="note-footer">
-                <span>{{ note.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                <span class="note-date">{{ note.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
                 <div class="note-actions">
-                    <button class="btn btn-icon btn-secondary" onclick="toggleColorPicker(this)">
+                    <button class="btn btn-icon" onclick="showColorPicker({{ note.id }})" title="Change color">
                         <span class="material-icons">palette</span>
                     </button>
-                    <a href="{{ url_for('edit_note', id=note.id) }}" class="btn btn-icon btn-secondary">
+                    <a href="{{ url_for('edit_note', id=note.id) }}" class="btn btn-icon" title="Edit">
                         <span class="material-icons">edit</span>
                     </a>
-                    <a href="{{ url_for('archive_note', id=note.id) }}" class="btn btn-icon btn-secondary">
+                    <a href="{{ url_for('archive_note', id=note.id) }}" class="btn btn-icon" title="Archive">
                         <span class="material-icons">archive</span>
                     </a>
-                    <a href="{{ url_for('delete_note', id=note.id) }}" class="btn btn-icon btn-secondary">
+                    <a href="{{ url_for('delete_note', id=note.id) }}" class="btn btn-icon" title="Delete">
                         <span class="material-icons">delete</span>
                     </a>
                 </div>
@@ -78,21 +78,87 @@
         {% endfor %}
     </div>
 
+    <!-- Color Picker Modal -->
+    <div id="colorPickerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Select Color</h3>
+                <button class="close-button" onclick="hideColorPicker()">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="color-grid">
+                <button class="color-option note-color-default" onclick="updateNoteColor('default')"></button>
+                <button class="color-option note-color-red" onclick="updateNoteColor('red')"></button>
+                <button class="color-option note-color-orange" onclick="updateNoteColor('orange')"></button>
+                <button class="color-option note-color-yellow" onclick="updateNoteColor('yellow')"></button>
+                <button class="color-option note-color-green" onclick="updateNoteColor('green')"></button>
+                <button class="color-option note-color-teal" onclick="updateNoteColor('teal')"></button>
+                <button class="color-option note-color-blue" onclick="updateNoteColor('blue')"></button>
+                <button class="color-option note-color-purple" onclick="updateNoteColor('purple')"></button>
+                <button class="color-option note-color-pink" onclick="updateNoteColor('pink')"></button>
+                <button class="color-option note-color-brown" onclick="updateNoteColor('brown')"></button>
+                <button class="color-option note-color-gray" onclick="updateNoteColor('gray')"></button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Handle color picker selection in the add note form
-        document.querySelectorAll('.color-option input[type="radio"]').forEach(radio => {
+        document.querySelectorAll('.add-note .color-option input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', function() {
-                document.querySelectorAll('.color-option').forEach(option => {
+                document.querySelectorAll('.add-note .color-option').forEach(option => {
                     option.classList.remove('selected');
                 });
                 this.parentElement.classList.add('selected');
             });
         });
 
-        // Show/hide color picker for existing notes
-        function toggleColorPicker(button) {
-            // Implementation will be added for changing note colors
-            console.log('Color picker clicked');
+        // Color picker modal functionality
+        let currentNoteId = null;
+        const modal = document.getElementById('colorPickerModal');
+
+        function showColorPicker(noteId) {
+            currentNoteId = noteId;
+            modal.style.display = 'block';
+        }
+
+        function hideColorPicker() {
+            modal.style.display = 'none';
+            currentNoteId = null;
+        }
+
+        function updateNoteColor(color) {
+            if (!currentNoteId) return;
+
+            fetch(`/update_color/${currentNoteId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `color=${color}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const noteCard = document.querySelector(`.note-card[data-note-id="${currentNoteId}"]`);
+                    if (noteCard) {
+                        // Remove all color classes
+                        noteCard.className = noteCard.className.replace(/\bnote-color-\w+\b/g, '');
+                        // Add new color class
+                        noteCard.classList.add('note-card', `note-color-${color}`);
+                    }
+                    hideColorPicker();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                hideColorPicker();
+            }
         }
     </script>
 {% endblock %} 
