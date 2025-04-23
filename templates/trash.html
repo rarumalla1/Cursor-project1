@@ -17,30 +17,141 @@
                     <span class="deleted-at">Deleted {{ note.is_deleted.strftime('%Y-%m-%d %H:%M') }}</span>
                 </div>
                 <div class="note-actions">
-                    <a href="{{ url_for('restore_note', id=note.id) }}" class="btn btn-icon btn-secondary" title="Restore">
+                    <button onclick="restoreNote({{ note.id }})" class="btn btn-icon btn-secondary" title="Restore">
                         <span class="material-icons">restore</span>
-                    </a>
-                    <a href="{{ url_for('permanent_delete_note', id=note.id) }}" class="btn btn-icon btn-danger" title="Delete permanently" onclick="return confirm('Are you sure you want to permanently delete this note? This action cannot be undone.');">
+                    </button>
+                    <button onclick="permanentlyDeleteNote({{ note.id }})" class="btn btn-icon btn-danger" title="Delete permanently">
                         <span class="material-icons">delete_forever</span>
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
 
-    {% if not notes %}
-    <div class="empty-state">
+    <div class="empty-state" {% if notes %}style="display: none;"{% endif %}>
         <span class="material-icons">delete_outline</span>
         <p>No items in trash</p>
     </div>
-    {% endif %}
 
-    {% if notes %}
-    <div class="trash-actions">
-        <button class="btn btn-danger" onclick="if(confirm('Are you sure you want to empty the trash? This action cannot be undone.')) window.location.href='{{ url_for('empty_trash') }}'">
+    <div class="trash-actions" {% if not notes %}style="display: none;"{% endif %}>
+        <button class="btn btn-danger" onclick="emptyTrash()">
             Empty Trash
         </button>
     </div>
-    {% endif %}
+
+    <script>
+        function restoreNote(noteId) {
+            fetch(`/restore/${noteId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const noteElement = document.querySelector(`.note-card[data-note-id="${noteId}"]`);
+                    if (noteElement) {
+                        noteElement.remove();
+                    }
+                    // Check if there are any notes left
+                    const remainingNotes = document.querySelectorAll('.note-card');
+                    if (remainingNotes.length === 0) {
+                        // Show empty state
+                        const emptyState = document.querySelector('.empty-state');
+                        if (emptyState) {
+                            emptyState.style.display = 'flex';
+                        }
+                        // Hide trash actions
+                        const trashActions = document.querySelector('.trash-actions');
+                        if (trashActions) {
+                            trashActions.style.display = 'none';
+                        }
+                    }
+                } else {
+                    throw new Error(data.error || 'Failed to restore note');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while restoring the note: ' + error.message);
+            });
+        }
+
+        function permanentlyDeleteNote(noteId) {
+            if (confirm('Are you sure you want to permanently delete this note? This action cannot be undone.')) {
+                fetch(`/permanent_delete/${noteId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const noteElement = document.querySelector(`.note-card[data-note-id="${noteId}"]`);
+                        if (noteElement) {
+                            noteElement.remove();
+                        }
+                        // Check if there are any notes left
+                        const remainingNotes = document.querySelectorAll('.note-card');
+                        if (remainingNotes.length === 0) {
+                            // Show empty state
+                            const emptyState = document.querySelector('.empty-state');
+                            if (emptyState) {
+                                emptyState.style.display = 'flex';
+                            }
+                            // Hide trash actions
+                            const trashActions = document.querySelector('.trash-actions');
+                            if (trashActions) {
+                                trashActions.style.display = 'none';
+                            }
+                        }
+                    } else {
+                        throw new Error(data.error || 'Failed to delete note');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while deleting the note: ' + error.message);
+                });
+            }
+        }
+
+        function emptyTrash() {
+            if (confirm('Are you sure you want to empty the trash? This action cannot be undone.')) {
+                fetch('/empty_trash', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove all notes
+                        const notes = document.querySelectorAll('.note-card');
+                        notes.forEach(note => note.remove());
+                        // Show empty state
+                        const emptyState = document.querySelector('.empty-state');
+                        if (emptyState) {
+                            emptyState.style.display = 'flex';
+                        }
+                        // Hide trash actions
+                        const trashActions = document.querySelector('.trash-actions');
+                        if (trashActions) {
+                            trashActions.style.display = 'none';
+                        }
+                    } else {
+                        throw new Error(data.error || 'Failed to empty trash');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while emptying the trash: ' + error.message);
+                });
+            }
+        }
+    </script>
 {% endblock %} 

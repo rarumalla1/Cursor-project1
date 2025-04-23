@@ -143,7 +143,7 @@ def edit_note(id):
 
 @app.route('/archived')
 def archived_notes():
-    notes = Note.query.filter_by(is_archived=True).order_by(Note.created_at.desc()).all()
+    notes = Note.query.filter_by(is_archived=True, is_deleted=None).order_by(Note.created_at.desc()).all()
     return render_template('archived.html', notes=notes)
 
 @app.route('/trash')
@@ -151,25 +151,48 @@ def trash():
     notes = Note.query.filter(Note.is_deleted.isnot(None)).order_by(Note.is_deleted.desc()).all()
     return render_template('trash.html', notes=notes)
 
-@app.route('/restore/<int:id>')
+@app.route('/restore/<int:id>', methods=['POST'])
 def restore_note(id):
-    note = Note.query.get_or_404(id)
-    note.is_deleted = None
-    db.session.commit()
-    return redirect(url_for('trash'))
+    try:
+        note = Note.query.get_or_404(id)
+        note.is_deleted = None
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)})
 
-@app.route('/permanent_delete/<int:id>')
+@app.route('/permanent_delete/<int:id>', methods=['POST'])
 def permanent_delete_note(id):
-    note = Note.query.get_or_404(id)
-    db.session.delete(note)
-    db.session.commit()
-    return redirect(url_for('trash'))
+    try:
+        note = Note.query.get_or_404(id)
+        db.session.delete(note)
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)})
 
-@app.route('/empty_trash')
+@app.route('/empty_trash', methods=['POST'])
 def empty_trash():
-    Note.query.filter(Note.is_deleted.isnot(None)).delete()
-    db.session.commit()
-    return redirect(url_for('trash'))
+    try:
+        Note.query.filter(Note.is_deleted.isnot(None)).delete()
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/unarchive_note/<int:id>', methods=['POST'])
+def unarchive_note(id):
+    try:
+        note = Note.query.get_or_404(id)
+        note.is_archived = False
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/static/<path:path>')
 def send_static(path):
