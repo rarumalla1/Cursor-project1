@@ -3,201 +3,153 @@ function toggleSidebar() {
     document.body.classList.toggle('sidebar-open');
 }
 
+// Add click outside handler for sidebar
+document.addEventListener('click', function(event) {
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarToggle = document.querySelector('.sidebar-toggle');
+    
+    // If sidebar is open and click is outside sidebar and not on toggle button
+    if (document.body.classList.contains('sidebar-open') &&
+        !sidebar.contains(event.target) &&
+        !sidebarToggle.contains(event.target)) {
+        toggleSidebar();
+    }
+});
+
+// Handle escape key to close sidebar
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape' && document.body.classList.contains('sidebar-open')) {
+        toggleSidebar();
+    }
+});
+
 // Color picker functionality
-let currentNoteId = null;
-let currentPickerButton = null;
 let currentColorPicker = null;
 
 function createColorPicker() {
-    // Create color picker if it doesn't exist
-    if (!currentColorPicker) {
-        currentColorPicker = document.createElement('div');
-        currentColorPicker.className = 'color-picker-popup';
-        currentColorPicker.innerHTML = `
-            <div class="color-grid">
-                <button class="color-dot note-color-default" data-color="default" title="Default"></button>
-                <button class="color-dot note-color-red" data-color="red" title="Red"></button>
-                <button class="color-dot note-color-orange" data-color="orange" title="Orange"></button>
-                <button class="color-dot note-color-yellow" data-color="yellow" title="Yellow"></button>
-                <button class="color-dot note-color-green" data-color="green" title="Green"></button>
-                <button class="color-dot note-color-teal" data-color="teal" title="Teal"></button>
-                <button class="color-dot note-color-blue" data-color="blue" title="Blue"></button>
-                <button class="color-dot note-color-purple" data-color="purple" title="Purple"></button>
-                <button class="color-dot note-color-pink" data-color="pink" title="Pink"></button>
-                <button class="color-dot note-color-brown" data-color="brown" title="Brown"></button>
-                <button class="color-dot note-color-gray" data-color="gray" title="Gray"></button>
-            </div>
-        `;
-        document.body.appendChild(currentColorPicker);
-
-        // Add click handlers to color dots
-        currentColorPicker.querySelectorAll('.color-dot').forEach(dot => {
-            dot.addEventListener('click', function() {
-                const color = this.dataset.color;
-                updateNoteColor(color);
-            });
-        });
-    }
+    const picker = document.createElement('div');
+    picker.className = 'color-picker-popup';
+    picker.innerHTML = `
+        <div class="color-grid">
+            <button class="color-dot note-color-default" data-color="default" title="Default"></button>
+            <button class="color-dot note-color-red" data-color="red" title="Red"></button>
+            <button class="color-dot note-color-orange" data-color="orange" title="Orange"></button>
+            <button class="color-dot note-color-yellow" data-color="yellow" title="Yellow"></button>
+            <button class="color-dot note-color-green" data-color="green" title="Green"></button>
+            <button class="color-dot note-color-teal" data-color="teal" title="Teal"></button>
+            <button class="color-dot note-color-blue" data-color="blue" title="Blue"></button>
+            <button class="color-dot note-color-purple" data-color="purple" title="Purple"></button>
+            <button class="color-dot note-color-pink" data-color="pink" title="Pink"></button>
+            <button class="color-dot note-color-brown" data-color="brown" title="Brown"></button>
+            <button class="color-dot note-color-gray" data-color="gray" title="Gray"></button>
+        </div>
+    `;
+    return picker;
 }
 
-// Color picker template
-const colorPickerTemplate = `
-    <div class="color-picker" style="display: none;">
-        <div class="color-grid">
-            <div class="color-option">
-                <input type="radio" name="color" value="default" id="color-default">
-                <label for="color-default" class="color-label note-color-default" title="Default"></label>
-            </div>
-            <div class="color-option">
-                <input type="radio" name="color" value="red" id="color-red">
-                <label for="color-red" class="color-label note-color-red" title="Red"></label>
-            </div>
-            <div class="color-option">
-                <input type="radio" name="color" value="orange" id="color-orange">
-                <label for="color-orange" class="color-label note-color-orange" title="Orange"></label>
-            </div>
-            <div class="color-option">
-                <input type="radio" name="color" value="yellow" id="color-yellow">
-                <label for="color-yellow" class="color-label note-color-yellow" title="Yellow"></label>
-            </div>
-            <div class="color-option">
-                <input type="radio" name="color" value="green" id="color-green">
-                <label for="color-green" class="color-label note-color-green" title="Green"></label>
-            </div>
-            <div class="color-option">
-                <input type="radio" name="color" value="teal" id="color-teal">
-                <label for="color-teal" class="color-label note-color-teal" title="Teal"></label>
-            </div>
-            <div class="color-option">
-                <input type="radio" name="color" value="blue" id="color-blue">
-                <label for="color-blue" class="color-label note-color-blue" title="Blue"></label>
-            </div>
-            <div class="color-option">
-                <input type="radio" name="color" value="purple" id="color-purple">
-                <label for="color-purple" class="color-label note-color-purple" title="Purple"></label>
-            </div>
-            <div class="color-option">
-                <input type="radio" name="color" value="pink" id="color-pink">
-                <label for="color-pink" class="color-label note-color-pink" title="Pink"></label>
-            </div>
-            <div class="color-option">
-                <input type="radio" name="color" value="brown" id="color-brown">
-                <label for="color-brown" class="color-label note-color-brown" title="Brown"></label>
-            </div>
-            <div class="color-option">
-                <input type="radio" name="color" value="gray" id="color-gray">
-                <label for="color-gray" class="color-label note-color-gray" title="Gray"></label>
-            </div>
-        </div>
-    </div>
-`;
-
 function showColorPicker(button) {
-    // Hide any existing color picker
+    // Remove any existing color picker
     if (currentColorPicker) {
         currentColorPicker.remove();
     }
 
     // Create new color picker
-    const picker = document.createElement('div');
-    picker.innerHTML = colorPickerTemplate;
-    const pickerElement = picker.firstElementChild;
-    pickerElement.style.display = 'block';
-    
-    // Check if this is for a new note or existing note
-    const noteCard = button.closest('.note-card');
-    const isNewNote = !noteCard;
-    
-    // Position the picker
-    const rect = button.getBoundingClientRect();
-    pickerElement.style.position = 'absolute';
-    
-    if (isNewNote) {
-        // For new note in modal
-        const modalContent = button.closest('.modal-content');
-        pickerElement.style.top = (rect.bottom - modalContent.getBoundingClientRect().top) + 'px';
-        pickerElement.style.left = (rect.left - modalContent.getBoundingClientRect().left) + 'px';
-        pickerElement.style.zIndex = '1050'; // Higher than modal's z-index
-        
-        // For new note, store the selected color in a hidden input
-        const form = document.getElementById('addNoteForm');
-        if (!form.querySelector('input[name="color"]')) {
-            const colorInput = document.createElement('input');
-            colorInput.type = 'hidden';
-            colorInput.name = 'color';
-            colorInput.value = 'default';
-            form.appendChild(colorInput);
-        }
-        
-        // Get current color if it exists
-        const colorInput = form.querySelector('input[name="color"]');
-        const currentColor = colorInput.value || 'default';
-        const currentInput = pickerElement.querySelector(`input[value="${currentColor}"]`);
-        if (currentInput) {
-            currentInput.checked = true;
-        }
-        
-        pickerElement.querySelectorAll('input[type="radio"]').forEach(input => {
-            input.addEventListener('change', () => {
-                colorInput.value = input.value;
-                // Update the color picker button's background
-                button.style.backgroundColor = getComputedStyle(document.querySelector(`.note-color-${input.value}`)).backgroundColor;
-                hideColorPicker();
-            });
-        });
-        
-        // Append to modal content for proper stacking
-        modalContent.appendChild(picker);
-    } else {
-        // For existing note
-        pickerElement.style.top = rect.bottom + window.scrollY + 5 + 'px';
-        pickerElement.style.left = rect.left + window.scrollX + 'px';
-        pickerElement.style.zIndex = '1000';
-        
-        const noteId = noteCard.dataset.noteId;
-        
-        // Get current color and set it as checked
-        const currentColor = noteCard.className.match(/note-color-(\w+)/)?.[1] || 'default';
-        const currentInput = pickerElement.querySelector(`input[value="${currentColor}"]`);
-        if (currentInput) {
-            currentInput.checked = true;
-        }
-        
-        pickerElement.querySelectorAll('input[type="radio"]').forEach(input => {
-            input.addEventListener('change', () => {
-                updateNoteColor(noteId, input.value);
-                hideColorPicker();
-            });
-        });
-        
-        // Append to body for existing notes
-        document.body.appendChild(picker);
-    }
-
+    const picker = createColorPicker();
+    document.body.appendChild(picker);
     currentColorPicker = picker;
 
-    // Add click outside handler
-    const handleClickOutside = (event) => {
-        if (!pickerElement.contains(event.target) && !button.contains(event.target)) {
-            hideColorPicker();
-            document.removeEventListener('click', handleClickOutside);
-        }
-    };
+    // Position the picker
+    const rect = button.getBoundingClientRect();
+    const isInModal = button.closest('.modal-content') !== null;
 
-    // Delay adding the click handler to prevent immediate triggering
+    picker.style.position = 'fixed';
+    picker.style.top = (rect.bottom + 5) + 'px';
+    picker.style.left = rect.left + 'px';
+    picker.style.zIndex = isInModal ? '1100' : '1050';
+    picker.style.display = 'block';
+
+    // Get current color
+    let currentColor = 'default';
+    const noteCard = button.closest('.note-card');
+    const form = document.getElementById('addNoteForm');
+
+    if (noteCard) {
+        // For existing note
+        currentColor = noteCard.className.match(/note-color-(\w+)/)?.[1] || 'default';
+    } else if (form) {
+        // For new note or edit note in modal
+        const colorInput = form.querySelector('input[name="color"]');
+        if (colorInput) {
+            currentColor = colorInput.value || 'default';
+        }
+    }
+
+    // Highlight current color
+    picker.querySelectorAll('.color-dot').forEach(dot => {
+        if (dot.dataset.color === currentColor) {
+            dot.classList.add('selected');
+        }
+    });
+
+    // Add click handlers to color dots
+    picker.querySelectorAll('.color-dot').forEach(dot => {
+        dot.addEventListener('click', function() {
+            const color = this.dataset.color;
+            if (noteCard) {
+                // For existing note
+                updateNoteColor(noteCard.dataset.noteId, color);
+            } else if (form) {
+                // For new note or edit note
+                const colorInput = form.querySelector('input[name="color"]');
+                if (colorInput) {
+                    colorInput.value = color;
+                    // Update button background color
+                    button.style.backgroundColor = getComputedStyle(document.querySelector(`.note-color-${color}`)).backgroundColor;
+                }
+            }
+            hideColorPicker();
+        });
+    });
+
+    // Add click outside handler
     setTimeout(() => {
         document.addEventListener('click', handleClickOutside);
     }, 0);
+
+    // Add escape key handler
+    document.addEventListener('keydown', handleEscapeKey);
 }
 
 function hideColorPicker() {
     if (currentColorPicker) {
         currentColorPicker.remove();
         currentColorPicker = null;
+        // Remove event listeners
+        document.removeEventListener('click', handleClickOutside);
+        document.removeEventListener('keydown', handleEscapeKey);
+    }
+}
+
+function handleClickOutside(event) {
+    if (currentColorPicker && 
+        !currentColorPicker.contains(event.target) && 
+        !event.target.classList.contains('color-picker-btn') &&
+        !event.target.closest('.color-picker-btn')) {
+        hideColorPicker();
+    }
+}
+
+function handleEscapeKey(event) {
+    if (event.key === 'Escape' && currentColorPicker) {
+        hideColorPicker();
     }
 }
 
 function updateNoteColor(noteId, color) {
+    if (!noteId) {
+        return;
+    }
+
     fetch('/update_note_color', {
         method: 'POST',
         headers: {
@@ -221,6 +173,7 @@ function updateNoteColor(noteId, color) {
                 });
                 // Add new color class
                 noteCard.classList.add('note-color-' + color);
+                noteCard.dataset.color = color;
             }
         } else {
             console.error('Failed to update note color:', data.error);

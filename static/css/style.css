@@ -9,10 +9,11 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
     margin: 0;
-    padding: 20px;
+    padding: 0;
     background-color: #f5f5f5;
+    overflow-x: hidden;
 }
 
 .container {
@@ -41,9 +42,12 @@ body {
     left: 0;
     right: 0;
     height: 64px;
-    background-color: white;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    z-index: 100;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    z-index: 1000;
 }
 
 .header-content {
@@ -54,17 +58,15 @@ body {
 }
 
 .logo {
-    margin-left: 16px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    margin-left: 16px;
     font-size: 20px;
-    color: #202124;
+    font-weight: 500;
 }
 
-.logo .material-icons {
-    font-size: 24px;
-    color: #5f6368;
+.logo i {
+    margin-right: 8px;
 }
 
 .nav-links {
@@ -113,21 +115,21 @@ body {
 
 /* Search Container */
 .search-container {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
 }
 
 #searchInput {
     width: 100%;
-    padding: 12px 20px;
+    padding: 12px;
     border: 1px solid #ddd;
     border-radius: 8px;
-    font-size: 1rem;
-    transition: border-color 0.2s ease;
+    font-size: 16px;
+    transition: border-color 0.2s;
 }
 
 #searchInput:focus {
     outline: none;
-    border-color: #007bff;
+    border-color: #1a73e8;
 }
 
 /* Notes Grid */
@@ -142,17 +144,22 @@ body {
 .note-card {
     background-color: #fff;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s, opacity 0.3s;
+    opacity: 1;
     padding: 15px;
     display: flex;
     flex-direction: column;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
     position: relative;
 }
 
 .note-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.note-card.hidden {
+    display: none;
+    opacity: 0;
 }
 
 .note-header {
@@ -266,7 +273,7 @@ body {
 }
 
 /* Note Colors */
-.note-color-default { background-color: #ffffff; border: 1px solid #ddd; }
+.note-color-default { background-color: #ffffff; border: 1px solid #e0e0e0; }
 .note-color-red { background-color: #f28b82; }
 .note-color-orange { background-color: #fbbc04; }
 .note-color-yellow { background-color: #fff475; }
@@ -293,6 +300,7 @@ body {
 
 /* Color Picker Button */
 .color-picker-btn {
+    position: relative;
     width: 32px;
     height: 32px;
     padding: 4px;
@@ -305,6 +313,11 @@ body {
     justify-content: center;
     color: #5f6368;
     transition: background-color 0.2s;
+    z-index: 1060;
+}
+
+.modal-content .color-picker-btn {
+    z-index: 1060;
 }
 
 .color-picker-btn:hover {
@@ -317,18 +330,19 @@ body {
 
 /* Empty State */
 .empty-state {
-    text-align: center;
-    padding: 40px;
-    color: #666;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    text-align: center;
+    padding: 48px;
+    color: #666;
 }
 
 .empty-state i {
-    color: #ccc;
-    margin-bottom: 15px;
+    font-size: 48px;
+    margin-bottom: 16px;
+    color: #999;
 }
 
 /* Floating Action Button */
@@ -385,6 +399,7 @@ body {
     max-width: 600px;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1050;
 }
 
 .modal-header {
@@ -465,73 +480,92 @@ textarea.form-control {
 /* Sidebar */
 .sidebar {
     position: fixed;
+    top: 64px;
     left: 0;
-    top: 0;
     bottom: 0;
-    width: 280px;
-    background-color: white;
-    transform: translateX(-280px);
-    transition: transform 0.3s ease;
-    z-index: 200;
-    padding-top: 64px;
+    width: 256px;
+    background-color: #fff;
     box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
 }
 
 .sidebar-content {
-    padding: 8px;
+    padding: 16px 0;
 }
 
 .nav-item {
     display: flex;
     align-items: center;
-    gap: 16px;
     padding: 12px 24px;
-    color: #202124;
+    color: #333;
     text-decoration: none;
-    border-radius: 0 24px 24px 0;
-    margin: 4px 0;
     transition: background-color 0.2s;
 }
 
 .nav-item:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-    text-decoration: none;
-    color: #202124;
+    background-color: rgba(0, 0, 0, 0.04);
 }
 
 .nav-item.active {
-    background-color: #e8f0fe;
+    background-color: rgba(0, 0, 0, 0.08);
     color: #1a73e8;
 }
 
-.nav-item .material-icons {
-    font-size: 20px;
+.nav-item i {
+    margin-right: 16px;
 }
 
-/* Main Content */
+/* Sidebar toggle button */
+.sidebar-toggle {
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    color: #333;
+}
+
+.sidebar-toggle:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+    border-radius: 50%;
+}
+
+/* Sidebar overlay */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 999;
+}
+
+/* Main content */
 .main-content {
-    padding-top: 64px;
     margin-left: 0;
+    margin-top: 64px;
+    padding: 24px;
     transition: margin-left 0.3s ease;
 }
 
-/* Sidebar Open State */
+/* Sidebar open state */
 body.sidebar-open .sidebar {
     transform: translateX(0);
 }
 
 body.sidebar-open .main-content {
-    margin-left: 280px;
+    margin-left: 256px;
 }
 
-/* Responsive Adjustments */
+/* Responsive styles */
 @media (max-width: 768px) {
     body.sidebar-open .main-content {
         margin-left: 0;
-    }
-    
-    .sidebar {
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     }
 }
 
@@ -923,37 +957,43 @@ body.sidebar-open .main-content {
     margin-bottom: 16px;
 }
 
-/* Compact Color Picker */
+/* Color Picker Popup */
 .color-picker-popup {
     position: fixed;
     background: white;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
     padding: 8px;
-    z-index: 1000;
+    z-index: 1100;
     display: none;
 }
 
 .color-grid {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 4px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    padding: 4px;
 }
 
 .color-dot {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 2px solid transparent;
     cursor: pointer;
-    padding: 0;
     transition: transform 0.2s, border-color 0.2s;
+    padding: 0;
     background: none;
 }
 
 .color-dot:hover {
-    transform: scale(1.2);
-    border-color: rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+    border-color: rgba(0, 0, 0, 0.2);
+}
+
+.color-dot.selected {
+    border-color: rgba(0, 0, 0, 0.5);
+    transform: scale(1.1);
 }
 
 /* Color Dot Colors */
@@ -968,6 +1008,19 @@ body.sidebar-open .main-content {
 .color-dot.note-color-pink { background-color: #fdcfe8; }
 .color-dot.note-color-brown { background-color: #e6c9a8; }
 .color-dot.note-color-gray { background-color: #e8eaed; }
+
+/* Note Card Colors */
+.note-card.note-color-default { background-color: #ffffff; }
+.note-card.note-color-red { background-color: #fce8e6; }
+.note-card.note-color-orange { background-color: #fef3e0; }
+.note-card.note-color-yellow { background-color: #fff8e6; }
+.note-card.note-color-green { background-color: #f1fbe9; }
+.note-card.note-color-teal { background-color: #e4f7f3; }
+.note-card.note-color-blue { background-color: #e8f4f8; }
+.note-card.note-color-purple { background-color: #f4ecfe; }
+.note-card.note-color-pink { background-color: #fde8f3; }
+.note-card.note-color-brown { background-color: #f3ebe3; }
+.note-card.note-color-gray { background-color: #f1f3f4; }
 
 /* Search Results Styles */
 .note-card.hidden {
@@ -1005,4 +1058,30 @@ body.sidebar-open .main-content {
     line-height: 1;
     display: inline-block;
     vertical-align: middle;
+}
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+}
+
+.sidebar-overlay.show {
+    display: block;
+}
+
+/* Ensure color picker button stays above other elements */
+.color-picker-btn {
+    position: relative;
+    z-index: 1;
+}
+
+/* When in modal, increase z-index */
+.modal-content .color-picker-btn {
+    z-index: 1060;
 } 

@@ -19,36 +19,37 @@
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-content">
-            <a href="{{ url_for('index') }}" class="nav-item {% if request.endpoint == 'index' %}active{% endif %}">
-                <span class="material-icons">description</span>
-                Notes
-            </a>
-            <a href="{{ url_for('archived_notes') }}" class="nav-item {% if request.endpoint == 'archived_notes' %}active{% endif %}">
-                <span class="material-icons">archive</span>
-                Archive
-            </a>
-            <a href="{{ url_for('trash') }}" class="nav-item {% if request.endpoint == 'trash' %}active{% endif %}">
-                <span class="material-icons">delete</span>
-                Trash
-            </a>
-        </div>
-    </div>
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
     <!-- Header -->
     <header class="header">
-        <div class="header-content">
-            <button class="nav-button" onclick="toggleSidebar()">
-                <span class="material-icons">menu</span>
-            </button>
-            <div class="logo">
-                <span class="material-icons">description</span>
-                Notes
-            </div>
+        <button class="sidebar-toggle" onclick="toggleSidebar()">
+            <i class="material-icons">menu</i>
+        </button>
+        <div class="logo">
+            <i class="material-icons">note</i>
+            <span>Notes</span>
         </div>
     </header>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-content">
+            <a href="{{ url_for('index') }}" class="nav-item {% if request.endpoint == 'index' %}active{% endif %}">
+                <i class="material-icons">note</i>
+                <span>Notes</span>
+            </a>
+            <a href="{{ url_for('archived_notes') }}" class="nav-item {% if request.endpoint == 'archived_notes' %}active{% endif %}">
+                <i class="material-icons">archive</i>
+                <span>Archive</span>
+            </a>
+            <a href="{{ url_for('trash') }}" class="nav-item {% if request.endpoint == 'trash' %}active{% endif %}">
+                <i class="material-icons">delete</i>
+                <span>Trash</span>
+            </a>
+        </div>
+    </aside>
 
     <!-- Main Content -->
     <main class="main-content">
@@ -60,13 +61,24 @@
     <script src="{{ url_for('static', filename='js/notes.js') }}"></script>
     <script src="{{ url_for('static', filename='js/search.js') }}"></script>
     <script>
-        // Initialize sidebar functionality
+        function toggleSidebar() {
+            document.body.classList.toggle('sidebar-open');
+            const overlay = document.querySelector('.sidebar-overlay');
+            if (document.body.classList.contains('sidebar-open')) {
+                overlay.style.display = 'block';
+                setTimeout(() => overlay.style.opacity = '1', 0);
+            } else {
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.style.display = 'none', 300);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // Close sidebar when clicking outside
             document.addEventListener('click', function(event) {
                 if (document.body.classList.contains('sidebar-open') && 
                     !event.target.closest('.sidebar') && 
-                    !event.target.closest('.nav-button')) {
+                    !event.target.closest('.sidebar-toggle')) {
                     toggleSidebar();
                 }
             });
